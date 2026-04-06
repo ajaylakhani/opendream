@@ -1,0 +1,17 @@
+{
+  "agents": {
+    "defaults": {
+      "heartbeat": {
+        "every": "30m",
+        "target": "none",
+        "isolatedSession": true,
+        "lightContext": true,
+        "activeHours": {
+          "start": "23:00",
+          "end": "06:00",
+          "timezone": "Europe/London"
+        }
+      }
+    }
+  }
+}
