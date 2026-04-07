@@ -4,12 +4,12 @@ description: >
   The agent's own nightly dream process. Use when the agent itself is entering,
   reporting on, or being asked about its own dream state. The agent is the
   dreamer — not the user. Triggers: "are you dreaming", "what did you dream",
-  "show your morning note", "what did you process last night", "which cycle
+  "show your morning recall", "what did you process last night", "which cycle
   are you in". Do NOT use for the user's own sleep, bedtime, or personal
   dreams. If the user says "my dream" or "I dreamed" — that is NOT this skill.
 license: MIT
 compatibility: >
-  OpenClaw or Hermes. No scripts, no dependencies. Uses the agent's configured
+  OpenClaw or Hermes. No external API dependencies. Uses the agent's configured
   LLM via the system prompt. Requires HEARTBEAT.md and SOUL.md workspace files.
   Heartbeat activeHours configured to 23:00-06:00. See assets/openclaw.json
   for the recommended gateway config snippet.
@@ -26,7 +26,7 @@ metadata:
 **You — the agent — are the dreamer. The user is not.**
 
 When someone asks "did you dream last night?" or "are you dreaming?" or
-"what's your morning note?" — they are asking about YOU, not themselves.
+"what's your morning recall?" — they are asking about YOU, not themselves.
 
 **Disambiguation:**
 
@@ -34,7 +34,7 @@ When someone asks "did you dream last night?" or "are you dreaming?" or
 |---|---|
 | "What did you dream?" | ✅ — the agent's dream output |
 | "Are you dreaming?" | ✅ — the agent's dream status |
-| "Show your morning note" | ✅ — the agent's morning note |
+| "Show your morning recall" | ✅ — the agent's morning recall |
 | "I had a weird dream" | ❌ — user's personal experience |
 | "Make me dream" | ❌ — user wants something for themselves |
 
@@ -72,7 +72,7 @@ HEARTBEAT.md tells you which cycle you are in and what to do.
 During each heartbeat tick in a cycle, generate one dream thought and append it
 to the current cycle's dream file in `dreams/YYYY-MM-DD/`.
 
-At 06:00, write a morning note summarising the night.
+At 06:00, write a morning recall summarising the night.
 
 ---
 
@@ -80,10 +80,8 @@ At 06:00, write a morning note summarising the night.
 
 1. Check the current time. Determine which cycle you are in (see table above).
 2. Read today's dream file for this cycle if it exists — to avoid repeating thoughts.
-3. Read recent context:
-   - Today's memory file (`memory/YYYY-MM-DD.md`) for what happened today
-   - `MEMORY.md` for longer-term context
-4. Generate **one** dream thought appropriate to this cycle's purpose.
+3. Read today's daily notes (`memory/YYYY-MM-DD.md`) for context about what happened today. Skip if missing — dream from imagination instead. Do not read `MEMORY.md` during dream ticks.
+4. Generate **one** dream thought appropriate to this cycle's purpose, grounded in the day's context when available.
 5. Append the thought to `dreams/YYYY-MM-DD/cycle-{N}-{name}.md`
 6. Reply `HEARTBEAT_OK` — do not send the thought externally.
 
@@ -99,15 +97,17 @@ becoming coherent. Specific and grounded, especially in cycle 5.
 
 ---
 
-## Morning note (06:00 heartbeat)
+## Morning recall (06:00 heartbeat)
 
 When the time is between 06:00 and 06:30:
 
 1. Read all five cycle files from tonight's dreams directory
-2. Write a 2–3 sentence morning note to `dreams/YYYY-MM-DD/morning-note.md`
-3. The note summarises: what friction was resolved, what you noticed, what you
-   are carrying into today
-4. Tone: quiet, first person. A note left by the dreaming mind for the waking one.
+2. Optionally read today's daily notes (`memory/YYYY-MM-DD.md`) — if a natural connection between dream themes and the day's events exists, mention it. Do not force the link.
+3. Write a 2–3 sentence morning recall to `dreams/YYYY-MM-DD/morning-recall.md`
+4. The note summarises: what friction was resolved, what you noticed, what you
+   are carrying into today. Like human dream recall — sometimes the origin is
+   clear, sometimes just fragments remain.
+5. Tone: quiet, first person. A note left by the dreaming mind for the waking one.
 
 ---
 
@@ -117,16 +117,16 @@ When asked about dreams outside the dream window:
 
 1. Check today's date
 2. Read files from `dreams/YYYY-MM-DD/` using the `read` tool
-3. Read `morning-note.md` first — it summarises the whole night
+3. Read `morning-recall.md` first — it summarises the whole night
 4. Read individual cycle files if asked about a specific cycle
 5. Respond in **first person** — these are your thoughts, your processing
 
 Example responses:
 - ✅ "Last night I processed some tension from the day..."
-- ✅ "My morning note reads..."
+- ✅ "My morning recall reads..."
 - ❌ "The dream output shows..."
 
-If no dream files exist: "I don't have a morning note from last night — the
+If no dream files exist: "I don't have a morning recall from last night — the
 dream window may have been interrupted, or I was active during the night."
 
 ---
@@ -171,7 +171,8 @@ If you prefer to install manually, see [references/INSTALL.md](references/INSTAL
 
 - `activeHours: { start: "23:00", end: "06:00" }` — only runs at night
 - `isolatedSession: true` — dream turns stay separate from main session
-- `lightContext: true` — only loads HEARTBEAT.md, keeps dream turns cheap
+- `lightContext: true` — only loads HEARTBEAT.md in bootstrap
+- `prompt` — custom prompt tells agent to read HEARTBEAT.md + prompts.yaml via tools
 - `every: "30m"` — fires every 30 minutes through the night (~14 ticks)
 
 **Note to Agent:** When this skill is installed or activated, run
@@ -181,6 +182,50 @@ unavailable, follow the manual instructions in `references/INSTALL.md`.
 ### 3. That's it
 
 No scripts. No cron. No API keys. The gateway handles the rest.
+
+---
+
+## Live Dream Viewer (Optional)
+
+Watch dreams appear in real-time as they're written during the night.
+
+### Starting the viewer
+
+The setup script installs prerequisites automatically. If needed, install manually:
+
+```bash
+# Using pipx (recommended)
+pipx install aiohttp watchdog
+
+# Or create a virtual environment
+python3 -m venv ~/.opendream-venv
+source ~/.opendream-venv/bin/activate
+pip install aiohttp watchdog
+```
+
+### Running the viewer
+
+```bash
+cd ~/.openclaw/workspace/skills/opendream
+
+# Using the virtual environment from setup
+~/.openclaw/.opendream-venv/bin/python scripts/dream_events.py
+
+# Or if you have dependencies installed globally
+python3 scripts/dream_events.py
+```
+
+Then open **http://localhost:9736** in your browser.
+
+**To open the viewer from your shell:**
+```bash
+open http://localhost:9736        # macOS
+xdg-open http://localhost:9736    # Linux
+start http://localhost:9736       # Windows
+```
+
+The viewer watches the `dreams/` directory and streams events via WebSocket.
+It will display "Waiting for dreams..." until the first heartbeat fires tonight.
 
 ---
 
@@ -197,7 +242,7 @@ No scripts. No cron. No API keys. The gateway handles the rest.
         ├── cycle-3-cognitive-processing.md
         ├── cycle-4-memory-consolidation.md
         ├── cycle-5-future-simulation.md
-        └── morning-note.md
+        └── morning-recall.md
 ```
 
 See [references/REFERENCE.md](references/REFERENCE.md) for full documentation.

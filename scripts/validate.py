@@ -97,10 +97,13 @@ def main():
     print("=" * 50)
     print(f"\n  Workspace: {workspace}\n")
     
+    memory_dir = workspace / "memory"
+
     checks = [
         ("HEARTBEAT.md", lambda: check_file(heartbeat_file, "## Dream mode")),
         ("SOUL.md", lambda: check_file(soul_file, "ElectricSheep mode")),
         ("Dreams directory", lambda: check_file(dreams_dir)),
+        ("Memory directory", lambda: (None, "Not yet created (OpenClaw creates on first use)") if not memory_dir.is_dir() else (True, "OK")),
         ("Gateway config", lambda: check_gateway_config(gateway_file)),
         ("Today's dreams", lambda: check_dreams_today(dreams_dir)),
     ]

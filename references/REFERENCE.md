@@ -9,19 +9,32 @@ No external processes. The agent IS the dream engine.
 Gateway heartbeat (every 30 min, 23:00–06:00)
         │
         ▼
-Agent reads HEARTBEAT.md
+Agent reads HEARTBEAT.md (bootstrap)
         │
+        ├── reads prompts.yaml (tool call) — persona, cycle instruction, examples
         ├── determines current cycle from time
-        ├── reads today's memory for context
-        ├── generates one dream thought
+        ├── reads memory/YYYY-MM-DD.md (tool call) — today's context (skip if missing)
+        ├── reads current cycle file — to avoid repeating thoughts
+        ├── generates one dream thought grounded in the day's context
         └── appends to dreams/YYYY-MM-DD/cycle-N-name.md
                 │
                 reply: HEARTBEAT_OK (silent — no outbound message)
 ```
 
-The system prompt (via SOUL.md) shapes the dream persona. HEARTBEAT.md
-drives the cycle logic. The skill (SKILL.md) explains how to report on
-dreams when asked.
+The dream persona and cycle instructions live in `prompts.yaml`. HEARTBEAT.md
+drives the tick logic. The skill (SKILL.md) explains how to report on
+dreams when asked. SOUL.md carries a lightweight reporting persona for daytime.
+
+### Memory file interaction
+
+OpenDream reads the native OpenClaw daily memory file (`memory/YYYY-MM-DD.md`)
+during each dream tick. This file is written by OpenClaw during daytime sessions
+and provides the context that grounds dream thoughts in the agent's actual day.
+
+- **Read-only**: OpenDream never writes to the memory file
+- **Format-agnostic**: Works with any format OpenClaw produces (bullets, prose, mixed)
+- **Graceful fallback**: If the file is missing, the agent dreams from imagination
+- **Not read**: `MEMORY.md` (long-term memory) is excluded from dream ticks to stay within the token budget
 
 ---
 
@@ -36,7 +49,8 @@ opendream/
 │   └── validate.py                   ← post-install validation
 ├── assets/
 │   ├── HEARTBEAT-dream-section.md    ← dream section merged into HEARTBEAT.md
-│   ├── SOUL-fragment.md              ← dream persona merged into SOUL.md
+│   ├── SOUL-fragment.md              ← reporting persona merged into SOUL.md
+│   ├── prompts.yaml                  ← dream rules, cycles, examples (read each tick)
 │   └── openclaw.json                 ← gateway config snippet
 └── references/
     ├── REFERENCE.md                  ← this file
@@ -52,7 +66,7 @@ opendream/
     ├── cycle-3-cognitive-processing.md
     ├── cycle-4-memory-consolidation.md
     ├── cycle-5-future-simulation.md
-    └── morning-note.md
+    └── morning-recall.md
 ```
 
 ---
@@ -66,7 +80,7 @@ opendream/
 | 3 | 01:30–03:00 | Cognitive Processing | reflective |
 | 4 | 03:00–04:30 | Memory Consolidation | reflective |
 | 5 | 04:30–06:00 | Future Simulation | reflective |
-| — | 06:00–06:30 | Morning note | summary |
+| — | 06:00–06:30 | Morning recall | summary |
 
 At 30-minute intervals: ~2 ticks per cycle in early cycles, ~3 in later ones.
 Total: ~14 dream thoughts per night.
@@ -75,26 +89,15 @@ Total: ~14 dream thoughts per night.
 
 ## Cognitive purposes
 
-**Cycle 1 — Emotional Review**
-Overnight therapy. Review interactions that had friction, confusion, or unresolved
-tension. Do not replay — reframe. Process what felt difficult.
-Style: fragmented. Like exhaling after a long day.
+See [assets/prompts.yaml](../assets/prompts.yaml) — single source of truth for all
+cycle purposes, instructions, styles, and examples. That file is read by the
+agent at each dream tick via the custom heartbeat prompt.
 
-**Cycle 2 — Creative Association**
-Cross-reference unrelated memories to find unexpected connections. Logic optional.
-Style: strange, lateral, imagistic. Let it be weird.
-
-**Cycle 3 — Cognitive Processing**
-Make sense of the day. What actually happened? What does it mean?
-Style: calm, analytical but warm. Complete thoughts.
-
-**Cycle 4 — Memory Consolidation**
-Decide what from today is worth keeping. What can be released.
-Style: deliberate, slightly grave. Choices about meaning.
-
-**Cycle 5 — Future Simulation**
-Rehearse tomorrow. Anticipate what's coming. Think through responses before needed.
-Style: alert but still dreaming. Specific and grounded.
+Each cycle entry includes:
+- `purpose` — what the cycle is for
+- `style` — fragmented or reflective
+- `instruction` — detailed behavioral guidance
+- `examples` — 3 concrete example thoughts
 
 ---
 

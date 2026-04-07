@@ -6,6 +6,7 @@ If you prefer not to use the setup script, follow these steps manually.
 
 - An OpenClaw (or Hermes) workspace with `HEARTBEAT.md` and `SOUL.md`
 - Access to `~/.openclaw/openclaw.json` (the gateway config)
+- The `memory/` directory is created automatically by OpenClaw on first use. OpenDream reads `memory/YYYY-MM-DD.md` for daily context during dream ticks. No manual setup needed — if the directory doesn't exist yet, dreams will proceed from imagination until the agent has its first daytime conversation.
 
 ## Step 1: Backup existing files
 
