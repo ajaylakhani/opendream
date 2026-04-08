@@ -38,7 +38,7 @@ If validate.py reports all checks passed, you're ready to contribute.
 | **Bug reports** | Filing an issue with reproduction steps | "Morning recall doesn't generate at 06:00" |
 | **Documentation** | Improving README, ARCHITECTURE, or references | Clarifying installation steps |
 | **Prompt tuning** | Editing `assets/prompts.yaml` | Adjusting cycle instructions for better output |
-| **Python scripts** | Improving setup.py, validate.py, dream_events.py | Adding a new validation check |
+| **Python scripts** | Improving setup.py, validate.py, tools/viewer/dream_events.py | Adding a new validation check |
 | **New features** | Adding capabilities to the dream skill | New cycle types, new output formats |
 
 All of these are first-class contributions. You don't need to write Python to help.

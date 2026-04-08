@@ -7,9 +7,9 @@ to a live browser-based viewer at ``GET /``.
 
 Usage:
     pip install aiohttp watchdog
-    python3 scripts/dream_events.py                    # default workspace
-    python3 scripts/dream_events.py /path/to/workspace  # explicit path
-    python3 scripts/dream_events.py --port 9736         # custom port
+    python3 tools/viewer/dream_events.py                    # default workspace
+    python3 tools/viewer/dream_events.py /path/to/workspace  # explicit path
+    python3 tools/viewer/dream_events.py --port 9736         # custom port
 
 Endpoints:
     GET /                  — HTML dream viewer
@@ -61,9 +61,9 @@ logger = logging.getLogger("opendream.viewer")
 # Config
 # ---------------------------------------------------------------------------
 
-SKILL_DIR = Path(__file__).resolve().parent.parent
+SKILL_DIR = Path(__file__).resolve().parent.parent.parent
 DEFAULT_PORT = 9736  # 9-R-E-M on phone keypad
-VIEWER_HTML = SKILL_DIR / "assets" / "viewer.html"
+VIEWER_HTML = Path(__file__).resolve().parent / "viewer.html"
 
 CYCLE_PATTERN = re.compile(r"cycle-(\d+)-(.+)\.md$")
 MORNING_PATTERN = re.compile(r"morning-recall\.md$")

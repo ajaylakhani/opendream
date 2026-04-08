@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/hero.png" alt="OpenDream — an AI agent dreaming through five cognitive cycles across the night, processing the day's events into fragmented thoughts, creative associations, and forward simulations" width="100%" />
+  <img src="./hero.png" alt="OpenDream — an AI agent dreaming through five cognitive cycles across the night, processing the day's events into fragmented thoughts, creative associations, and forward simulations" width="100%" />
 </p>
 
 <p align="center">
@@ -128,6 +128,12 @@ Each heartbeat tick costs roughly 2–5K tokens. With `lightContext` and `isolat
 | Claude Sonnet | ~$0.17 | ~$5.19 |
 
 Use `heartbeat.model` in your gateway config to set a cheaper model for dream ticks only. For the full token breakdown, see [docs/TOKEN-ANALYSIS.md](docs/TOKEN-ANALYSIS.md).
+
+---
+
+## Live Viewer (Optional)
+
+Want to watch dreams appear in real-time? The optional live viewer streams dream events to your browser as they're written overnight. It's not installed by `setup.py` — see [tools/viewer/README.md](tools/viewer/README.md) for setup instructions.
 
 ---
 
